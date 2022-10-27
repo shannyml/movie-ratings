@@ -44,6 +44,41 @@ def show_user(user_id):
 
     return render_template("user_details.html", user = user)
 
+    
+
+@app.route('/users', methods = ["POST"])
+def register_user():
+    email = request.form.get("email")
+    password = request.form.get("password")
+    
+    user = crud.get_user_by_email(email)
+
+    if user:
+        flash("Already a user")
+    else:
+        user = crud.create_user(email, password)
+        db.session.add(user)
+        db.session.commit()
+        flash("Account created!")
+
+    return redirect('/')
+
+@app.route('/login', methods = ["POST"])
+def show_login():
+
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    user = crud.get_user_by_email(email)
+    user_password = crud.get_user_by_password(password)
+    
+    if user == user_password:
+        flash("You have successfully logged in!")
+    else:
+        flash("Incorrect email or Password")
+
+    return redirect('/')
+
 if __name__ == "__main__":
     connect_to_db(app)
     app.run(host="0.0.0.0", debug=True)
